@@ -4,123 +4,77 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/phaser/3.23.0/phaser.min.js" integrity="sha512-FgqGgzXpW1P9AjZuhLDIE5E5jH1ntIkrv3VKB36HoET27Ek2w60HenbIr21+rCu1qZ/Fvl64PkxNRP51a9m2Nw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-    <title>Riding hood</title>
-    <style>
-        * {
-            padding: 0;
-            margin: 0;
-        }
-        body {
-            height: 100vh;
-            width: 100vw;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-    </style>
+    <script src="//cdn.jsdelivr.net/npm/phaser@3.55.2/dist/phaser.min.js"></script>
+    <title>Red Riding Hood</title>
 </head>
 <body>
     <script>
         let red;
-        let cursor;
-        let isJumping;
-        let isRunning;
-        let audio_strike;
+        let cursors;
         let audio_feet;
+        let isRunning;
 
         function preload () {
-            this.load.spritesheet('red_idle', 'red_hood/idle_sheet.png', {frameWidth: 80, frameHeight: 80})
-            this.load.spritesheet('red_run', 'red_hood/run_sheet.png', {frameWidth: 80, frameHeight: 80})
-            this.load.spritesheet('red_jump', 'red_hood/jump_sheet.png', {frameWidth: 80, frameHeight: 80})
-            this.load.spritesheet('red_strike', 'red_hood/strike_sheet.png', {frameWidth: 80, frameHeight: 80})
-            this.load.audio('strike', 'red_hood/strike.ogg')
-            this.load.audio('feet', 'red_hood/feet.ogg')
+            this.load.spritesheet('idle', 'idle_sheet.png', {frameWidth: 80, frameHeight: 80})
+            this.load.spritesheet('run', 'run_sheet.png', {frameWidth: 80, frameHeight: 80})
+            this.load.spritesheet('jump', 'jump_sheet.png', {frameWidth: 80, frameHeight: 80})
+            this.load.spritesheet('strike', 'strike_sheet.png', {frameWidth: 80, frameHeight: 80})
+            this.load.audio('feet', 'feet.ogg')
         }
+
         function create () {
-            red = this.physics.add.sprite(300, 300, 'red_idle')
+            red = this.physics.add.sprite(300, 300, 'idle')
             red.setScale(1.8)
             red.setBounce(0.2)
             red.setCollideWorldBounds(true)
+
             cursors = this.input.keyboard.createCursorKeys()
-
-            audio_strike = this.sound.add('strike')
             audio_feet = this.sound.add('feet')
-            
-            this.anims.create({
-                key: 'front',
-                frames: this.anims.generateFrameNumbers('red_idle', { start: 1, end: 18 }),
-                frameRate: 10,
-                repeat: -1
-            })
-
+        
             this.anims.create({
                 key: 'left',
-                frames: this.anims.generateFrameNumbers('red_run', { start: 1, end: 24 }),
                 frameRate: 35,
-                repeat: -1
+                repeat: -1,
+                frames: this.anims.generateFrameNumbers('run', { start:1, end: 24 })
             })
 
             this.anims.create({
                 key: 'right',
-                frames: this.anims.generateFrameNumbers('red_run', { start: 1, end: 24 }),
                 frameRate: 35,
-                repeat: -1
+                repeat: -1,
+                frames: this.anims.generateFrameNumbers('run', { start:1, end: 24 })
             })
 
             this.anims.create({
-                key: 'strike',
-                frames: this.anims.generateFrameNumbers('red_strike', { start: 1, end: 26 }),
-                frameRate: 24
-            })
-
-            this.anims.create({
-                key: 'jump',
-                frames: this.anims.generateFrameNumbers('red_jump', { start: 1, end: 19 }),
+                key: 'idle',
                 frameRate: 10,
-                repeat: -1
+                repeat: -1,
+                frames: this.anims.generateFrameNumbers('idle', { start: 1, end: 18 })
             })
-
-            this.input.keyboard.on('keydown-SPACE', event => audio_strike.play())
-
         }
+
         function update () {
             if (cursors.left.isDown) {
                 isRunning = true
-                red.flipX = true
                 red.setVelocityX(-290)
+                red.flipX = true
                 red.anims.play('left', true)
             } else if (cursors.right.isDown) {
                 isRunning = true
                 red.flipX = false
-                red.setVelocityX(290);
+                red.setVelocityX(290)
                 red.anims.play('right', true)
-            } else if (cursors.space.isDown) {
-                isRunning = false
-                red.setVelocityX(0)
-                red.anims.play('strike', true)
             } else {
                 isRunning = false
                 red.setVelocityX(0)
-                red.anims.play('front', true)
-                audio_feet.pause()
-            }
-
-            if (cursors.up.isDown && !isJumping) {
-                isJumping = true
-                red.setVelocityY(-160)
-                red.anims.play('jump', true)
-            }
-
-            if (isJumping && red.body.onFloor()) {
-                isJumping = false
+                red.anims.play('idle', true)
             }
 
             if(isRunning && !audio_feet.isPlaying) {
                 audio_feet.play()
             }
-            
-            if (!isRunning && audio_feet.isPlaying) {
+
+            if(!isRunning && audio_feet.isPlaying) {
                 audio_feet.stop()
             }
         }
